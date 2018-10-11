@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: mysqlpv
+spec:
+   capacity:
+     storage: 2Gi
+   accessModes:
+     - ReadWriteMany
+     - ReadWriteOnce
+   nfs:
+     path: /srv/nfs/mysqlpv
+     server: node1.devops-techm.com
+   persistentVolumeReclaimPolicy: Recycle
+

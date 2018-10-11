@@ -1,0 +1,47 @@
+
+oauthConfig:
+  assetPublicURL: https://master.devops-techm.com:8443/console/
+  grantConfig:
+    method: auto
+identityProviders:
+  - challenge: true
+    login: true
+    mappingMethod: claim
+    name: htpasswd
+    provider:
+      apiVersion: v1
+      kind: HTPasswdPasswordIdentityProvider
+      file: /etc/origin/master/users.htpasswd
+
+
+
+HTPasswd
+
+Set HTPasswdPasswordIdentityProvider in the identityProviders stanza to validate user names and passwords against a flat file generated using htpasswd.
+	
+
+The htpasswd utility is in the httpd-tools package:
+
+# yum install httpd-tools
+
+OpenShift Container Platform supports the Bcrypt, SHA-1, and MD5 cryptographic hash functions, and MD5 is the default for htpasswd. Plaintext, encrypted text, and other hash functions are not currently supported.
+
+
+                Link-https://docs.openshift.com/container-platform/3.9/install_config/configuring_authentication.html#overview
+
+
+
+Users created in OCP 
+
+username	password
+techm		root123$
+devops		devops123$
+develop		develop123$
+develop2	develop123$
+
+
+
+
+
+
+

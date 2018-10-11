@@ -1,0 +1,43 @@
+1. Provision a 'EBS' Volume and attach to the instance, in which you want to configure the NFS.
+
+2. Run the command ' fdisk  -l' to identify the mount point of the new volume.
+
+(In this example , i am assuming it as /dev/xvdf' )
+
+
+3. To Create a partition Run ' fdisk   /dev/xvdf' .
+
+4.Press Enter and (If no other change requires, accept the default values).
+
+5. Run w! to write the partition to the new disk.
+
+(You can verify the partition using the command 'fdisk /dev/xvdf' and press 'p' )
+
+6. Configure the filesystem on the new partition using the command   'mkfs.xfs  /dev/xvdf1'.
+
+7.Create a new mount pint for the new partition in the system using 'mkdir /srv/nfs'
+
+8.Create a new entry in '/etc/fstab'  
+
+It may looks like
+
+/dev/xvdf1      /srv/nfs      xfs     defaults    0 0 
+
+
+9. Run the command 'mount -a'.
+
+10. Verify the partition using the command 'df -h'
+
+11. Install the 'nfs' package using 'yum install nfs-utils'
+
+12 Change the ownership of the new partition using  'chwon -R nfsnobody:nfsnobody  /srv/nfs'
+
+13.Now change its access mode using 'chmod -R 777 /srv/nfs'
+
+14. Proceed to create an entry in '/etc/exports' file. Create an entry on  /etc/exports  file like  /srv/nfs          *(rw,root_squash)
+
+15Now Run the command 'exportfs -a'
+
+16.Verify the nfs share using the command 'exportfs'
+
+17 If you are seeing the new nfs share for  /srv/nfs'   like  world ,/srv/nfs>,  you can proceed with the inventory configura

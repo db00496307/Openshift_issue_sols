@@ -1,0 +1,28 @@
+To add additional space(To extend the LVM) to /:
+
+1. Make a partition using the unallocated space on the disk
+
+#fdisk /dev/sdb
+ - n option to make a new partition
+ +100G
+ - A partition /dev/sdb3 is created
+ - w option to write table to disk and exit
+
+Update the partition table to disk(Without rebooting)
+#partprobe /dev/sdb
+
+Create PV from the partition /dev/sdb3
+#pvcreate /dev/sdb3
+ 
+Add the PV to the required volume group(rhel)/Extend the required Volume Group
+#vgextend rhel /dev/sdb3
+
+
+Extend the Logical Volume
+#pvdisplay    (Substitute PE below(25599))
+#lvextend -l 25599 /dev/rhel/root
+
+Resize the '/' partition 
+#xfs_growfs /dev/rhel/root
+
+

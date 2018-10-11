@@ -1,0 +1,44 @@
+CloudForms Deployment
+
+openshift_management_install_management=true
+openshift_management_install_beta=true 
+openshift_management_app_template=cfme-template
+
+
+
+PV Creation
+
+cd /srv/nfs
+mkdir cfme-db
+chown -R nfsnobody:nfsnobody /srv/nfs
+chmod -R 777 /srv/nfs
+
+cd /etc/exports.d
+vi openshift-ansible.exports
+Add the following line to the above file and save.
+"/srv/nfs/cfme-db"  *(sync,rw,root_squash)
+#exportfs -a
+
+-Using available templates
+
+cd /usr/share/openshift/examples/cfme-templates
+
+vi cfme-pv-db-example.yaml
+-Edit the required parameters
+  BASE_PATH= /srv/nfs
+  PV_SIZE= 20Gi
+
+Create Template (Execute from same directory)
+#oc create -f cfme-pv-db-example.yaml
+#oc get template
+NAME               DESCRIPTION                          PARAMETERS    OBJECTS
+cloudforms-db-pv   PV Template for CFME PostgreSQL DB   3 (all set)   1
+
+Create PV
+#oc process cloudforms-db-pv | oc create -f-
+
+[root@master cfme-templates]# oc process cloudforms-db-pv | oc create -f-
+persistentvolume "cfme-db" created
+
+
+

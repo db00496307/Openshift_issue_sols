@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: bitbucketpv
+spec:
+   capacity:
+     storage: 4Gi
+   accessModes:
+     - ReadWriteMany
+     - ReadWriteOnce
+   nfs:
+     path: /srv/nfs/bitbucket
+     server: master.devops-techm.com
+   persistentVolumeReclaimPolicy: Recycle
+

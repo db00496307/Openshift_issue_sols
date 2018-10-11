@@ -1,0 +1,13 @@
+piVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkinpvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  volumeName: jenkinpv
+

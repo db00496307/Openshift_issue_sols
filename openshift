@@ -1,0 +1,91 @@
+Configuring Node Host Labels
+
+You can assign labels to node hosts during the Ansible install by configuring the /etc/ansible/hosts file. Labels are useful for determining the placement of pods onto nodes using the scheduler. Other than region=infra (referred to as dedicated infrastructure nodes and discussed further in Configuring Dedicated Infrastructure Nodes), the actual label names and values are arbitrary and can be assigned however you see fit per your cluster’s requirements.
+
+To assign labels to a node host during an Ansible install, use the openshift_node_labels variable with the desired labels added to the desired node host entry in the [nodes] section. In the following example, labels are set for a region called primary and a zone called east:
+
+[nodes]
+node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+
+Starting in OpenShift Container Platform 3.9, masters are now marked as schedulable nodes by default. As a result, the default node selector (defined in the master configuration file’s projectConfig.defaultNodeSelector field to determine which node that projects will use by default when placing pods, and previously left blank by default) is now set by default during cluster installations. It is set to node-role.kubernetes.io/compute=true unless overridden using the osm_default_node_selector Ansible variable.
+
+In addition, whether osm_default_node_selector is set or not, the following automatic labeling occurs for hosts defined in your inventory file during installation:
+
+    non-master, non-dedicated infrastructure nodes hosts (for example, the node1.example.com host shown above) are labeled with node-role.kubernetes.io/compute=true
+
+    master nodes are are labeled node-role.kubernetes.io/master=true
+
+This ensures that the default node selector has available nodes to choose from when determining pod placement.
+	
+
+If you accept the default node selector of node-role.kubernetes.io/compute=true during installation, ensure that you do not only have dedicated infrastructure nodes as the non-master nodes defined in your cluster. In that scenario, application pods would fail to deploy because no nodes with the node-role.kubernetes.io/compute=true label would be available to match the default node selector when scheduling pods for projects.
+
+See Setting the Cluster-wide Default Node Selector for steps on adjusting this setting post-installation if needed.
+
+
+
+
+
+
+
+
+The web console runs as a pod on the master. The static assets required to run the web console are served by the pod. Administrators can also customize the web console using extensions, which let you run scripts and load custom stylesheets when the web console loads.
+
+
+
+Configuring Dedicated Infrastructure Nodes
+
+It is recommended for production environments that you maintain dedicated infrastructure nodes where the registry and router pods can run separately from pods used for user applications.
+
+The openshift_router_selector and openshift_registry_selector Ansible settings determine the label selectors used when placing registry and router pods. They are set to region=infra by default:
+
+# default selectors for router and registry services
+# openshift_router_selector='region=infra'
+# openshift_registry_selector='region=infra'
+
+
+The registry and router are only able to run on node hosts with the region=infra label, which are then considered dedicated infrastructure nodes. Ensure that at least one node host in your OpenShift Container Platform environment has the region=infra label. For example:
+
+
+
+
+
+
+If you are using an image registry other than the default registry.access.redhat.com, you need to specify the desired registry in the /etc/ansible/hosts file.
+
+As described in Configuring Schedulability on Masters, master hosts are marked schedulable by default. If you label a master host with region=infra and have no other dedicated infrastructure nodes, the master hosts must also be marked as schedulable. Otherwise, the registry and router pods cannot be placed anywhere:
+
+[nodes]
+master.example.com openshift_node_labels="{'region': 'infra','zone': 'default'}" openshift_schedulable=true
+
+
+
+Configuring Schedulability on Masters
+
+Any hosts you designate as masters during the installation process should also be configured as nodes so that the masters are configured as part of the OpenShift SDN. You must do so by adding entries for these hosts to the [nodes] section:
+
+[nodes]
+master.example.com
+
+In previous versions of OpenShift Container Platform, master hosts were marked as unschedulable nodes by default by the installer, meaning that new pods could not be placed on the hosts. Starting with OpenShift Container Platform 3.9, however, masters are marked schedulable automatically during installation. This change is mainly so that the web console, which used to run as part of the master itself, can instead be run as a pod deployed to the master.
+
+If you want to change the schedulability of a host post-installation, see Marking Nodes as Unschedulable or Schedulable.
+
+
+
+In previous versions of OpenShift Container Platform, master hosts were marked unschedulable by default by the installer, meaning that no pods could be placed on the hosts. Starting with OpenShift Container Platform 3.9, however, the web console is removed from the master services and deployed as a pod on the masters, requiring that masters be marked schedulable. This also requires adding labels to certain hosts, which assigns node roles (either master or compute).
+
+
+
+
+
+
+
+
+Questions
+
+1. What does compute role mean for nodes?
+2. Should the master be schedulable?
+3. Can the web-console pod be deployed on non-master nodes?
+4. 
+

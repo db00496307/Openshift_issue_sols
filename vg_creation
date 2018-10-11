@@ -1,0 +1,26 @@
+-> Add a new LVM partition using the fdisk command.
+
+For example:
+
+#fdisk /dev/sdb
+
+ -> n option to make a new partition
+ -> +100G
+ -> A partition /dev/sdb3 is created
+ -> w option to write table to disk and exit
+
+
+-> Update the partition table to disk(Without rebooting)
+#partprobe /dev/sdb
+
+
+-> Create an LVM physical volume (PV) using the pvcreate command.
+For example:
+#pvcreate /dev/sdb3
+
+
+-> Create an LVM VG.
+For example, to create a VG called docker-vg under /dev, run:
+#vgcreate dockervg /dev/sdb3
+
+

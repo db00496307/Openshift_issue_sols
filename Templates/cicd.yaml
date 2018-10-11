@@ -1,0 +1,219 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: template-t4
+labels:
+  name: sonar-template
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        application: sonar
+      name: sonar
+    spec:
+      dockerImageRepository: "docker.io/wkulhanek/sonarqube"
+  - apiVersion: v1 
+    kind: DeploymentConfig
+    metadata:
+      name: sonar
+      labels:
+        application: sonar
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: sonar
+      strategy: 
+        type: Recreate
+      template:
+        metadata:
+          labels: 
+            deploymentconfig: sonar
+            application: sonar
+          name: sonar
+        spec:
+          containers:
+            - name: sonar
+              image: docker.io/wkulhanek/sonarqube
+              ports:
+                - containerPort: 9000
+                  protocol: TCP
+              env:
+                - name: HTTP_PROXY
+                  value: 'http://10.53.130.55:8080'
+                - name: SONARQUBE_JDBC_URL
+                  value: 'jdbc:postgresql://postgresql/sonar'
+                - name: SONARQUBE_JDBC_USERNAME
+                  value: sonar
+                - name: SONARQUBE_JDBC_PASSWORD
+                  value: sonar123
+              resources: {}
+              imagePullPolicy: IfNotPresent
+          terminationGracePeriodSeconds: 30
+          dnsPolicy: ClusterFirst
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels: 
+        application: sonar
+      name: sonar
+    spec:
+      ports:
+      - name: 9000-tcp
+        port: 9000
+        protocol: TCP
+        targetPort: 9000
+      selector:
+        application: sonar
+        deploymentconfig: sonar
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: sonar
+      labels:
+        name: sonar
+    spec:
+      host: "sonar-template.master.devops-techm.com"
+      to:
+        kind: Service
+        name: sonar
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        application: nexus
+      name: nexus
+    spec:
+      dockerImageRepository: "docker.io/sonatype/nexus3"
+  - apiVersion: v1 
+    kind: DeploymentConfig
+    metadata:
+      name: nexus
+      labels:
+        application: nexus
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: nexus
+      strategy: 
+        type: Recreate
+      template:
+        metadata:
+          labels: 
+            deploymentconfig: nexus
+            application: nexus
+          name: nexus
+        spec:
+          containers:
+            - name: nexus
+              image: docker.io/sonatype/nexus3
+              ports:
+                - containerPort: 8081
+                  protocol: TCP
+              env:
+                - name: HTTP_PROXY
+                  value: 'http://10.53.130.55:8080'
+                - name: HTTPS_PROXY
+                  value: 'https://10.53.130.55:8080'
+              resources: {}
+              imagePullPolicy: IfNotPresent
+          terminationGracePeriodSeconds: 30
+          dnsPolicy: ClusterFirst
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels: 
+        application: nexus
+      name: nexus
+    spec:
+      ports:
+      - name: 8081-tcp
+        port: 8081
+        protocol: TCP
+        targetPort: 8081
+      selector:
+        application: nexus
+        deploymentconfig: nexus
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: nexus
+      labels:
+        name: nexus
+    spec:
+      host: "nexus-template.master.devops-techm.com"
+      to:
+        kind: Service
+        name: nexus
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        application: gogs
+      name: gogs
+    spec:
+      dockerImageRepository: "docker.io/gogs/gogs"
+  - apiVersion: v1 
+    kind: DeploymentConfig
+    metadata:
+      name: gogs
+      labels:
+        application: gogs
+    spec:
+      replicas: 1
+      selector:
+        deploymentconfig: gogs
+      strategy: 
+        type: Recreate
+      template:
+        metadata:
+          labels: 
+            deploymentconfig: gogs
+            application: gogs
+          name: gogs
+        spec:
+          containers:
+            - name: gogs
+              image: docker.io/gogs/gogs
+              ports:
+                - containerPort: 3000
+                  protocol: TCP
+              env:
+                - name: HTTP_PROXY
+                  value: 'http://10.53.130.55:8080'
+                - name: HTTPS_PROXY
+                  value: 'https://10.53.130.55:8080'
+                - name: GOGS_USERNAME
+                  value: gogs1
+                - name: GOGS_PASSWORD
+                  value: gogu123
+              resources: {}
+              imagePullPolicy: IfNotPresent
+          terminationGracePeriodSeconds: 30
+          dnsPolicy: ClusterFirst
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels: 
+        application: gogs
+      name: gogs
+    spec:
+      ports:
+      - name: 3000-tcp
+        port: 3000
+        protocol: TCP
+        targetPort: 3000
+      selector:
+        application: gogs
+        deploymentconfig: gogs
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: gogs
+      labels:
+        name: gogs
+    spec:
+      host: "gogs-template.master.devops-techm.com"
+      to:
+        kind: Service
+        name: gogs

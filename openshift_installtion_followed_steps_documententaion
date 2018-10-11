@@ -1,0 +1,76 @@
+- Set IP address and Hostname using NetworkManager(Using GUI settings or using NetworkManager gui (nmtui command to launch NM)) or while installing RHEL (Manual IPV4)
+- Set Gateway 10.53.67.1
+- Set Netmask 255.0.0.0
+- Set manual proxy in network wired settings
+- Set DNS server (Currently using 10.20.125.159)
+  
+
+OCP Host Preparation
+- Subscription of the Machines:
+	#subscription-manager register --username TechM_DevOps_Consulting --password DevOps@TechM --auto-attach
+    	error: Network error, unable to connect to server. Please see /var/log/rhsm/rhsm.log for more information.
+    	Solution: set proxy and port in /etc/rhsm/rhsm.conf)
+
+	#subscription-manager refresh
+	1 local certificate has been deleted.
+	All local data refreshed.
+
+	#subscription-manager list --available --matches '*OpenShift*'
+	 >copy the pool id of Red Hat OpenShift, Standard Support (10 Cores, NFR, Partner Only)
+
+	#subscription-manager attach --pool=8a85f98b635f3e6d01638208e6a44906
+	Successfully attached a subscription for: Red Hat OpenShift, Standard Support (10 Cores, NFR, Partner Only)
+
+	#subscription-manager repos --disable="*"
+	
+	#yum repolist
+
+	-Use yum-config-manager to disable the remaining yum repositories:
+
+	#yum-config-manager --disable <repo_id>
+
+	-Alternatively, disable all repositories:
+
+	#yum-config-manager --disable \*
+
+	#subscription-manager repos \
+   	 --enable="rhel-7-server-rpms" \
+  	 --enable="rhel-7-server-extras-rpms" \
+   	 --enable="rhel-7-server-ose-3.9-rpms" \
+   	 --enable="rhel-7-fast-datapath-rpms" \
+  	 --enable="rhel-7-server-ansible-2.4-rpms"
+    
+    ((error: Network error, unable to connect to server. Please see /var/log/rhsm/rhsm.log for more information.
+    Soln: vi /etc/resolv.conf  and add
+    subscription.rhsm.redhat.com. 1823 IN   A   209.132.183.108 ))
+
+
+Install required Utils:
+	#yum install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+Update
+	#yum update
+	#systemctl reboot
+
+	#yum install atomic-openshift-utils
+
+Install Docker
+
+#yum install docker-1.13.1
+
+Setup Docker Storage
+
+	- In /etc/sysconfig/docker-storage-setup, set
+	VG=docker-vg
+	(First create a volume group docker-vg using the free space available on disk
+		#fdisk /dev/sda or fdisk /dev/sdb (whichever the disk is avilable)
+		- create a new partition using 'n' option
+		- reboot if partitions are not updated
+		- create a physical volume using the partition made 
+			#pvcreate /dev/sda3
+		- create a vg using the physical volume created
+			#vgcreate /dev/sda3
+	- Run the command	
+		#docker-storage-setup
+
+
+

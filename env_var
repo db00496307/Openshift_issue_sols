@@ -1,0 +1,9 @@
+Systemwide Environment Variables - Add in /etc/bashrc file    
+
+These will be used by all the users system-wide without updating everytime.
+
+
+export M2_HOME=/usr/local/apache-maven/apache-maven-3.5.4
+export M2=$M2_HOME/bin
+export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk-1.8.0.171-8.b10.el7_5.x86_64
+export PATH=$JAVA_HOME/bin:$M2:$PATH

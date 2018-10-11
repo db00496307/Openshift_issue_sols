@@ -1,0 +1,11 @@
+Issues faced while installation
+
+- API server did not become available
+  Problem:
+  Solution: Add osm_cluster_network_cidr=192.128.0.0./14 in inventory(hosts) file)
+- Web console could not be deployed  
+  Problem:Pod could not be deployed as no nodes were avilable matching the Node selector 
+  Solution: Edit the Node selector or add required node label to desired node on which it has to be deployed)
+- abs-etcd pod could not be deployed
+  Problem: PV not available
+  Solution: Create PV and

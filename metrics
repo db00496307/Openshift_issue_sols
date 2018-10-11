@@ -1,0 +1,82 @@
+
+Enable Cluster Metrics
+
+An Ansible playbook is available to deploy and upgrade cluster metrics. You should familiarize yourself with the Advanced Installation section. This provides information for preparing to use Ansible and includes information about configuration. Parameters are added to the Ansible inventory file to configure various areas of cluster metrics.
+
+The following describe the various areas and the parameters that can be added to the Ansible inventory file in order to modify the defaults:
+
+    Metrics Project
+
+    Metrics Data Storage
+
+
+
+
+Set necessary variables in inventory file. By default the it is deployed in openshift-infra project. To change the project, add openshift_metrics_project='<project_name>'in inventory file
+
+
+Variables added in inventory file:
+
+openshift_metrics_install_metrics=True
+openshift_metrics_cassandra_storage_type=pv
+openshift_metrics_cassandra_node_selector='region=infra'
+openshift_metrics_hawkular_node_selector='region=infra'
+openshift_metrics_heapster_node_selector='region=infra'
+openshift_metrics_hawkular_hostname=hawkular-metrics.master.devops-techm.com
+openshift_metrics_project='hawkular-metrics'
+
+Setting up Persistent Volume for Cassandra to run metrics with persistent storage:
+
+$cd /srv/nfs
+$mkdir metrics
+$chmod 777 /srv/nfs
+Add the following entry in /etc/exports.d/openshift-ansible.exports file
+
+"/srv/nfs/metrics"  *(sync,rw,root_squash)
+$exportfs -a
+
+To create a PV:
+vi metrics.yaml
+
+#yaml script
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: metrics
+spec:
+   capacity:
+     storage: 12Gi
+   accessModes:
+     - ReadWriteMany
+     - ReadWriteOnce
+   nfs:
+     path: /srv/nfs/metrics
+     server: master.devops-techm.com
+   persistentVolumeReclaimPolicy: Retain
+
+
+$oc create -f metrics.yaml
+persistentvolume "metrics" created
+
+$oc get pv
+
+NAME      CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM                                   STORAGECLASS   REASON    AGE
+metrics   12Gi       RWO,RWX        Retain           Available                                                                    5s
+pv1       5Gi        RWO,RWX        Retain           Bound       openshift-ansible-service-broker/etcd                            8d
+
+
+
+Deploy Hawkular metrics by running the metrics config playbook.
+
+ansible-playbook -i ~/.config/openshift/hosts /usr/share/ansible/openshift-ansible/playbooks/openshift-metrics/config.yml
+
+
+
+
+
+
+
+
+
+

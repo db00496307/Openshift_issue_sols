@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   name: jenkin8gbpv
+spec:
+   capacity:
+     storage: 8Gi
+   accessModes:
+     - ReadWriteMany
+     - ReadWriteOnce
+   nfs:
+     path: /srv/nfs/jenkin8gb
+     server: master.devops-techm.com
+   persistentVolumeReclaimPolicy: Recycle
