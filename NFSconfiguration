@@ -41,3 +41,21 @@ It may looks like
 16.Verify the nfs share using the command 'exportfs'
 
 17 If you are seeing the new nfs share for  /srv/nfs'   like  world ,/srv/nfs>,  you can proceed with the inventory configura
+
+
+
+
+1.	Create a directory that will be used to mount the PV in /srv/nfs.
+#mkdir pvsample
+2.	Change the ownership  using the following. 
+#chwon -R nfsnobody:nfsnobody  /srv/nfs'
+3.	Now change its access mode using
+#chmod -R 777 /srv/nfs'
+4.	Create an entry in /etc/exports.d/openshift-ansible.exports file as following 
+/srv/nfs/pvsample *(rw,root_squash)
+5.	Now Run the following command 
+exportfs -a
+6.	Verify the nfs share using the command 'exportfs'
+7.	Using a PV definition, create a PV. The sample definitions can be found in /root/Templates location on master node. Mount path should be the path to the created mount directory. If definition file is named as pvsample.yaml, create PV as following.
+#oc create -f pvsample.yaml or oc create -f <path to definition file>
+
