@@ -48,7 +48,7 @@ It may looks like
 1.	Create a directory that will be used to mount the PV in /srv/nfs.
 #mkdir pvsample
 2.	Change the ownership  using the following. 
-#chwon -R nfsnobody:nfsnobody  /srv/nfs'
+#chown -R nfsnobody:nfsnobody  /srv/nfs'
 3.	Now change its access mode using
 #chmod -R 777 /srv/nfs'
 4.	Create an entry in /etc/exports.d/openshift-ansible.exports file as following 
